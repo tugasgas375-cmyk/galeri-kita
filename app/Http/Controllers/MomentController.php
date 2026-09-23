@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Moment;
+use App\Models\MomentView;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Str;
 
 class MomentController extends Controller
 {
@@ -27,10 +30,22 @@ class MomentController extends Controller
     {
         $moment->load('photos');
 
-        $cameFromOwnSite = $request->headers->get('referer')
-            && str_contains($request->headers->get('referer'), parse_url(url('/'), PHP_URL_HOST));
+        $deviceId = $request->cookie('dk_device_id');
 
-        if (! $cameFromOwnSite) {
+        if (! $deviceId) {
+            $deviceId = (string) Str::uuid();
+            Cookie::queue('dk_device_id', $deviceId, 60 * 24 * 365 * 5);
+        }
+
+        $alreadyViewed = MomentView::where('moment_id', $moment->id)
+            ->where('device_id', $deviceId)
+            ->exists();
+
+        if (! $alreadyViewed) {
+            MomentView::create([
+                'moment_id' => $moment->id,
+                'device_id' => $deviceId,
+            ]);
             $moment->increment('views');
         }
 

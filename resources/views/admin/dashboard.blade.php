@@ -25,7 +25,7 @@
                 <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-lg text-emerald-500">&#128065;</span>
                 <div>
                     <p class="text-2xl font-bold leading-none text-stone-900">{{ \App\Models\Moment::sum('views') }}</p>
-                    <p class="mt-1 text-xs text-stone-400">Total dilihat</p>
+                    <p class="mt-1 text-xs text-stone-400">Total orang melihat</p>
                 </div>
             </div>
         </div>

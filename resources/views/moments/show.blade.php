@@ -20,7 +20,7 @@
                 </span>
                 <span class="flex items-center gap-1 text-xs text-stone-400">
                     <span class="text-rose-400">&#128065;</span>
-                    {{ number_format($moment->views, 0, ',', '.') }} dilihat
+                    {{ number_format($moment->views, 0, ',', '.') }} orang melihat
                 </span>
             </div>
             <h1 class="mt-4 font-serif text-4xl font-bold leading-tight text-stone-900 sm:text-5xl lg:text-6xl">

@@ -9,7 +9,7 @@
         <div>
             <p class="font-serif text-lg italic text-rose-400">{{ $moment->moment_date->translatedFormat('d F Y') }}</p>
             <h1 class="mt-1 font-serif text-4xl font-bold text-stone-900">{{ $moment->title }}</h1>
-            <p class="mt-2 text-stone-500">{{ $moment->photos->count() }} foto &bull; dibuka {{ $moment->views }} kali</p>
+            <p class="mt-2 text-stone-500">{{ $moment->photos->count() }} foto &bull; dilihat {{ $moment->views }} orang</p>
         </div>
         <div class="flex flex-wrap gap-3">
             <a href="{{ route('moments.download', $moment) }}"
