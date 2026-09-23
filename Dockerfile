@@ -55,4 +55,4 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 EXPOSE 80
 
-CMD ["sh", "-c", "a2dismod -f mpm_event mpm_worker 2>/dev/null || true; a2enmod mpm_prefork 2>/dev/null || true; apache2ctl -t && php artisan migrate --force && php artisan storage:link --force && apache2-foreground"]
+CMD ["sh", "-c", "chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache; a2dismod -f mpm_event mpm_worker 2>/dev/null || true; a2enmod mpm_prefork 2>/dev/null || true; apache2ctl -t && php artisan migrate --force && php artisan storage:link --force && apache2-foreground"]
