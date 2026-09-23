@@ -159,21 +159,6 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const revealEls = document.querySelectorAll('.reveal');
-            if (!('IntersectionObserver' in window)) {
-                revealEls.forEach((el) => el.classList.add('reveal-visible'));
-                return;
-            }
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('reveal-visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.12 });
-            revealEls.forEach((el) => observer.observe(el));
-
             const counter = document.getElementById('days-together');
             if (counter) {
                 const start = Math.floor(new Date('{{ config('gallery.first_date') }}T00:00:00').getTime() / 1000);
