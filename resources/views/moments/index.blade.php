@@ -141,6 +141,9 @@
                             <span class="absolute right-3 top-3 rounded-full bg-black/50 px-3 py-1.5 text-xs font-medium text-white backdrop-blur">
                                 &#128065; {{ number_format($moment->views, 0, ',', '.') }}
                             </span>
+                            <span class="absolute bottom-3 left-3 rounded-full bg-black/50 px-3 py-1.5 text-xs font-medium text-white backdrop-blur">
+                                &#10084; {{ number_format($moment->likes, 0, ',', '.') }}
+                            </span>
                         </a>
 
                         {{-- Info --}}
@@ -176,10 +179,17 @@
                                 </div>
                             @endif
 
-                            <a href="{{ route('moments.show', $moment) }}" class="mt-7 inline-flex w-fit items-center gap-2 rounded-full border border-rose-200 px-6 py-2.5 text-sm font-medium text-rose-600 transition hover:bg-rose-600 hover:text-white">
+                            <div class="mt-7 flex flex-wrap items-center gap-3">
+                            <a href="{{ route('moments.show', $moment) }}" class="inline-flex w-fit items-center gap-2 rounded-full border border-rose-200 px-6 py-2.5 text-sm font-medium text-rose-600 transition hover:bg-rose-600 hover:text-white">
                                 Kenang momen ini
                                 <span class="transition-transform group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
                             </a>
+                            @include('partials.like-button', [
+                                'moment' => $moment,
+                                'liked' => in_array($moment->id, $likedMomentIds),
+                                'compact' => true,
+                            ])
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -214,6 +224,8 @@
 @endsection
 
 @push('scripts')
+    @include('partials.like-handler')
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const counter = document.getElementById('days-together');

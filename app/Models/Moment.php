@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Moment extends Model
 {
-    protected $fillable = ['title', 'description', 'tags', 'moment_date', 'views'];
+    protected $fillable = ['title', 'description', 'tags', 'moment_date', 'views', 'likes'];
 
     protected $casts = [
         'moment_date' => 'date',
         'views' => 'integer',
+        'likes' => 'integer',
         'tags' => 'array',
     ];
 
@@ -41,6 +42,11 @@ class Moment extends Model
     public function photos(): HasMany
     {
         return $this->hasMany(Photo::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function likes(): HasMany
+    {
+        return $this->hasMany(MomentLike::class);
     }
 
     public function coverPhoto(): ?Photo

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [MomentController::class, 'index'])->name('home');
 Route::get('/galeri', [MomentController::class, 'gallery'])->name('gallery');
 Route::get('/momen/{moment}', [MomentController::class, 'show'])->name('moments.show');
+Route::post('/momen/{moment}/like', [MomentController::class, 'toggleLike'])->name('moments.like');
 Route::get('/momen/{moment}/unduh', [AdminController::class, 'downloadZIP'])->name('moments.download');
 
 Route::get('/admin/login', [AuthController::class, 'showLogin'])->name('admin.login');

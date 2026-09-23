@@ -22,6 +22,10 @@
                     <span class="text-rose-400">&#128065;</span>
                     {{ number_format($moment->views, 0, ',', '.') }} orang melihat
                 </span>
+                <span class="flex items-center gap-1 text-xs text-stone-400">
+                    <span class="text-rose-400">&#10084;</span>
+                    {{ number_format($moment->likes, 0, ',', '.') }} disukai
+                </span>
             </div>
             <h1 class="mt-4 font-serif text-4xl font-bold leading-tight text-stone-900 sm:text-5xl lg:text-6xl">
                 {{ $moment->title }}
@@ -36,6 +40,7 @@
             @endif
 
             <div class="mt-8 flex flex-wrap items-center gap-3">
+                @include('partials.like-button', ['moment' => $moment, 'liked' => $liked])
                 <button type="button" id="start-slideshow"
                         class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-500 to-rose-600 px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-rose-200 transition hover:-translate-y-0.5 hover:shadow-xl">
                     &#9654; Putar Slideshow
@@ -91,6 +96,7 @@
 
 @push('scripts')
     @include('partials.lightbox')
+    @include('partials.like-handler')
 
     <script>
         const slideshowBtn = document.getElementById('start-slideshow');

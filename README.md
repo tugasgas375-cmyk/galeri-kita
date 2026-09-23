@@ -9,6 +9,7 @@ Website galeri momen bersama pasangan, dibangun dengan **Laravel 12** + **Tailwi
 - Tag / kategori per momen + filter tag di halaman utama & galeri
 - Halaman galeri penuh (`/galeri`): grid semua foto, filter per momen/tag
 - Slideshow otomatis (autoplay) di lightbox per foto, dengan progress bar & kontrol keyboard
+- Tombol like (&#10084;) per momen — satu perangkat satu like, bisa dibatalkan (unlike)
 - Kelola foto per momen: tambah foto lagi, edit caption per foto, hapus foto per-satu
 - Unduh album sebagai ZIP per momen
 - Penghitung "berapa kali dilihat" per momen

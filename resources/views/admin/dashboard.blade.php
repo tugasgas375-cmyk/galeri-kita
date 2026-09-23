@@ -6,7 +6,7 @@
         <h1 class="mt-1 font-serif text-4xl font-bold text-stone-900">Dashboard</h1>
         <p class="mt-2 max-w-lg text-stone-500">Kelola semua momen-momen kalian di sini, sayang.</p>
 
-        <div class="mt-7 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div class="mt-7 grid grid-cols-2 gap-4 lg:grid-cols-5">
             <div class="flex items-center gap-3 rounded-2xl bg-white/90 px-5 py-3.5 shadow-sm">
                 <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-100 text-lg text-rose-500">&#128248;</span>
                 <div>
@@ -19,6 +19,13 @@
                 <div>
                     <p class="text-2xl font-bold leading-none text-stone-900">{{ number_format($stats['photos'], 0, ',', '.') }}</p>
                     <p class="mt-1 text-xs text-stone-400">Foto</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 rounded-2xl bg-white/90 px-5 py-3.5 shadow-sm">
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-100 text-lg text-rose-500">&#10084;</span>
+                <div>
+                    <p class="text-2xl font-bold leading-none text-stone-900">{{ number_format($stats['likes'], 0, ',', '.') }}</p>
+                    <p class="mt-1 text-xs text-stone-400">Total like</p>
                 </div>
             </div>
             <div class="flex items-center gap-3 rounded-2xl bg-white/90 px-5 py-3.5 shadow-sm">
@@ -80,6 +87,9 @@
                             </div>
                             <span class="shrink-0 rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-600">
                                 &#128065; {{ number_format($item->views, 0, ',', '.') }}
+                            </span>
+                            <span class="shrink-0 rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-600">
+                                &#10084; {{ number_format($item->likes, 0, ',', '.') }}
                             </span>
                         </li>
                     @endforeach

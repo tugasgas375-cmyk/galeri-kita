@@ -62,6 +62,33 @@ class GalleryTest extends TestCase
             ->assertSee('Putar Slideshow');
     }
 
+    public function test_like_moment_toggles_once_per_device(): void
+    {
+        $moment = $this->makeMoment();
+        $withDevice = fn () => $this->withCookie('dk_device_id', 'device-1');
+
+        $response = $withDevice()->post('/momen/'.$moment->id.'/like');
+        $response->assertOk()
+            ->assertJson(['liked' => true, 'likes' => 1]);
+        $moment->refresh();
+        $this->assertSame(1, $moment->likes);
+
+        $response = $withDevice()->post('/momen/'.$moment->id.'/like');
+        $response->assertOk()
+            ->assertJson(['liked' => false, 'likes' => 0]);
+        $moment->refresh();
+        $this->assertSame(0, $moment->likes);
+    }
+
+    public function test_home_and_show_render_like_buttons(): void
+    {
+        $moment = $this->makeMoment();
+        $this->addPhoto($moment);
+
+        $this->get('/')->assertStatus(200)->assertSee('like-btn');
+        $this->get('/momen/'.$moment->id)->assertStatus(200)->assertSee('like-btn');
+    }
+
     public function test_admin_can_create_moment_with_tags(): void
     {
         session()->put('admin_authenticated', true);

@@ -29,6 +29,7 @@ class AdminController extends Controller
             'moments' => (int) Moment::count(),
             'photos' => (int) Photo::count(),
             'views' => (int) Moment::sum('views'),
+            'likes' => (int) Moment::sum('likes'),
             'unique_viewers' => (int) MomentView::count(),
             'views_30_days' => (int) MomentView::where('created_at', '>=', now()->subDays(30)->startOfDay())->count(),
             'views_7_days' => (int) MomentView::where('created_at', '>=', now()->subDays(7)->startOfDay())->count(),

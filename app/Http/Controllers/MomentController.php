@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Moment;
+use App\Models\MomentLike;
 use App\Models\MomentView;
 use App\Models\Photo;
 use Illuminate\Http\Request;
@@ -27,7 +28,9 @@ class MomentController extends Controller
 
         $tags = Moment::allTags();
 
-        return view('moments.index', compact('moments', 'tags'));
+        $likedMomentIds = $this->likedMomentIds($request, $moments->pluck('id')->all());
+
+        return view('moments.index', compact('moments', 'tags', 'likedMomentIds'));
     }
 
     public function gallery(Request $request)
@@ -74,6 +77,55 @@ class MomentController extends Controller
             $moment->increment('views');
         }
 
-        return view('moments.show', compact('moment'));
+        $liked = in_array($moment->id, $this->likedMomentIds($request, [$moment->id]), true);
+
+        return view('moments.show', compact('moment', 'liked'));
+    }
+
+    public function toggleLike(Request $request, Moment $moment)
+    {
+        $deviceId = $request->cookie('dk_device_id');
+
+        if (! $deviceId) {
+            $deviceId = (string) Str::uuid();
+            Cookie::queue('dk_device_id', $deviceId, 60 * 24 * 365 * 5);
+        }
+
+        $existing = MomentLike::where('moment_id', $moment->id)
+            ->where('device_id', $deviceId)
+            ->first();
+
+        if ($existing) {
+            $existing->delete();
+            $moment->decrement('likes');
+            $liked = false;
+        } else {
+            MomentLike::create([
+                'moment_id' => $moment->id,
+                'device_id' => $deviceId,
+                'created_at' => now(),
+            ]);
+            $moment->increment('likes');
+            $liked = true;
+        }
+
+        return response()->json([
+            'liked' => $liked,
+            'likes' => (int) $moment->fresh()->likes,
+        ]);
+    }
+
+    protected function likedMomentIds(Request $request, array $momentIds): array
+    {
+        $deviceId = $request->cookie('dk_device_id');
+
+        if (! $deviceId || empty($momentIds)) {
+            return [];
+        }
+
+        return MomentLike::whereIn('moment_id', $momentIds)
+            ->where('device_id', $deviceId)
+            ->pluck('moment_id')
+            ->all();
     }
 }
