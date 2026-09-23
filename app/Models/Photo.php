@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Photo extends Model
 {
-    protected $fillable = ['moment_id', 'path', 'caption'];
+    protected $fillable = ['moment_id', 'path', 'caption', 'sort_order', 'is_cover'];
+
+    protected $casts = [
+        'sort_order' => 'integer',
+        'is_cover' => 'boolean',
+    ];
 
     public function moment(): BelongsTo
     {

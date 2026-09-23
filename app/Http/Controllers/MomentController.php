@@ -7,12 +7,18 @@ use Illuminate\Http\Request;
 
 class MomentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $moments = Moment::query()
-            ->with('photos')
+        $moments = Moment::with('photos')
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('title', 'like', '%'.$request->string('q').'%')
+                        ->orWhere('description', 'like', '%'.$request->string('q').'%');
+                });
+            })
             ->orderByDesc('moment_date')
-            ->paginate(config('gallery.home_per_page'));
+            ->paginate(config('gallery.home_per_page'))
+            ->withQueryString();
 
         return view('moments.index', compact('moments'));
     }

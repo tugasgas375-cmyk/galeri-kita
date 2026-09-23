@@ -60,14 +60,43 @@
 
     {{-- Daftar foto --}}
     <div class="mt-10">
-        <h2 class="font-serif text-2xl font-bold text-stone-900">Semua Foto</h2>
-        <div class="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <h2 class="font-serif text-2xl font-bold text-stone-900">Semua Foto</h2>
+            <form method="POST" action="{{ route('admin.photos.reorder') }}" id="reorder-form">
+                @csrf
+                <input type="hidden" name="order" id="reorder-order-input" value="">
+                <button type="submit" id="reorder-save" disabled
+                        class="rounded-xl bg-stone-800 px-5 py-2.5 text-sm font-medium text-white opacity-40 transition hover:bg-stone-900 disabled:cursor-not-allowed">
+                    &#10003; Simpan Urutan
+                </button>
+            </form>
+        </div>
+
+        <p class="mt-2 text-xs text-stone-400" id="reorder-hint">Tarik foto untuk mengatur urutan, lalu klik "Simpan Urutan".</p>
+
+        <div id="photo-grid" class="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             @forelse ($moment->photos as $photo)
-                <div class="overflow-hidden rounded-2xl border border-rose-100/60 bg-white shadow-sm">
-                    <a href="{{ $photo->url }}" target="_blank" class="group relative block">
-                        <img src="{{ $photo->url }}" alt="{{ $photo->caption ?: $moment->title }}" class="h-52 w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy">
-                        <span class="absolute right-2 top-2 rounded-full bg-black/60 px-2.5 py-0.5 text-[11px] text-white backdrop-blur">#{{ $loop->iteration }}</span>
-                    </a>
+                <div class="photo-item overflow-hidden rounded-2xl border border-rose-100/60 bg-white shadow-sm" data-id="{{ $photo->id }}">
+                    <div class="relative">
+                        <a href="{{ $photo->url }}" target="_blank" class="group relative block cursor-grab">
+                            <img src="{{ $photo->url }}" alt="{{ $photo->caption ?: $moment->title }}" class="h-52 w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy">
+                            <span class="absolute right-2 top-2 rounded-full bg-black/60 px-2.5 py-0.5 text-[11px] text-white backdrop-blur">#{{ $loop->iteration }}</span>
+                        </a>
+                        @if ($photo->is_cover)
+                            <span class="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-gradient-to-r from-rose-500 to-rose-600 px-2.5 py-0.5 text-[11px] font-semibold text-white shadow">
+                                <span>&#10024;</span> Sampul
+                            </span>
+                        @endif
+                        <span class="absolute bottom-2 left-2 cursor-grab rounded-full bg-white/90 px-2.5 py-1 text-base text-stone-400 shadow-sm backdrop-blur" title="Seret untuk urutkan">&#9776;</span>
+                    </div>
+
+                    <form method="POST" action="{{ route('admin.photos.cover', $photo) }}" class="px-4 pt-3">
+                        @csrf
+                        <button type="submit"
+                                class="w-full rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 transition hover:bg-amber-100 {{ $photo->is_cover ? 'opacity-60' : '' }}">
+                            {{ $photo->is_cover ? '&#10024; Sampul aktif' : 'Jadikan sampul' }}
+                        </button>
+                    </form>
 
                     <form method="POST" action="{{ route('admin.photos.update', $photo) }}" class="p-4">
                         @csrf
@@ -163,5 +192,75 @@
                 preview.appendChild(cell);
             });
         }
+    </script>
+
+    <script>
+        (function () {
+            const grid = document.getElementById('photo-grid');
+            if (!grid) return;
+
+            const items = Array.from(grid.querySelectorAll('.photo-item'));
+            if (items.length < 2) return;
+
+            const saveBtn = document.getElementById('reorder-save');
+            const orderInput = document.getElementById('reorder-order-input');
+            let dragged = null;
+
+            function collectOrder() {
+                return Array.from(grid.querySelectorAll('.photo-item')).map((el) => el.dataset.id);
+            }
+
+            function refreshOrder() {
+                orderInput.value = collectOrder().join(',');
+                saveBtn.disabled = false;
+                saveBtn.classList.remove('opacity-40');
+            }
+
+            items.forEach((item) => {
+                item.setAttribute('draggable', 'true');
+
+                item.addEventListener('dragstart', (e) => {
+                    dragged = item;
+                    e.dataTransfer.effectAllowed = 'move';
+                    item.classList.add('opacity-50', 'ring-2', 'ring-rose-400');
+                    refreshOrder();
+                });
+
+                item.addEventListener('dragend', () => {
+                    dragged = null;
+                    item.classList.remove('opacity-50', 'ring-2', 'ring-rose-400');
+                    grid.querySelectorAll('.photo-item').forEach((el) => el.classList.remove('bg-rose-50'));
+                    refreshOrder();
+                });
+
+                item.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (dragged === item) return;
+                    item.classList.add('bg-rose-50');
+                });
+
+                item.addEventListener('dragleave', () => {
+                    item.classList.remove('bg-rose-50');
+                });
+
+                item.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    item.classList.remove('bg-rose-50');
+                    if (!dragged || dragged === item) return;
+
+                    const all = Array.from(grid.querySelectorAll('.photo-item'));
+                    const from = all.indexOf(dragged);
+                    const to = all.indexOf(item);
+
+                    if (from < to) {
+                        grid.insertBefore(dragged, item.nextSibling);
+                    } else {
+                        grid.insertBefore(dragged, item);
+                    }
+
+                    refreshOrder();
+                });
+            });
+        })();
     </script>
 @endsection

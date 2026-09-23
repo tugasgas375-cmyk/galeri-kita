@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Moment;
 use App\Models\Photo;
+use App\Services\ImageOptimizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -118,6 +119,28 @@ class AdminController extends Controller
         return back()->with('success', 'Foto berhasil dihapus.');
     }
 
+    public function setCover(Photo $photo)
+    {
+        $photo->moment->photos()->update(['is_cover' => false]);
+        $photo->update(['is_cover' => true]);
+
+        return back()->with('success', 'Foto sampul berhasil diubah.');
+    }
+
+    public function reorder(Request $request)
+    {
+        $data = $request->validate([
+            'order' => ['required', 'array', 'min:1'],
+            'order.*' => ['integer', 'exists:photos,id'],
+        ]);
+
+        foreach (array_values($data['order']) as $index => $photoId) {
+            Photo::where('id', $photoId)->update(['sort_order' => $index]);
+        }
+
+        return back()->with('success', 'Urutan foto berhasil disimpan.');
+    }
+
     public function downloadZIP(Moment $moment)
     {
         $moment->load('photos');
@@ -166,13 +189,28 @@ class AdminController extends Controller
 
     protected function savePhotos(Moment $moment, array $photos, array $captions)
     {
+        $optimizer = new ImageOptimizer;
+        $beforeCount = (int) $moment->photos()->count();
+        $nextSort = (int) $moment->photos()->max('sort_order') + 1;
+        if ($beforeCount === 0) {
+            $nextSort = 0;
+        }
+
         foreach ($photos as $index => $file) {
+            $tmp = $file->getRealPath();
+
+            if ($tmp && is_file($tmp)) {
+                $optimizer->optimize($tmp);
+            }
+
             $path = $file->store('photos/'.$moment->id, 'public');
 
             Photo::create([
                 'moment_id' => $moment->id,
                 'path' => $path,
                 'caption' => $captions[$index] ?? null,
+                'sort_order' => $nextSort + $index,
+                'is_cover' => $beforeCount === 0 && $index === 0,
             ]);
         }
     }

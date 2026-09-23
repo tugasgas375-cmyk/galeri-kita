@@ -16,11 +16,11 @@ class Moment extends Model
 
     public function photos(): HasMany
     {
-        return $this->hasMany(Photo::class);
+        return $this->hasMany(Photo::class)->orderBy('sort_order')->orderBy('id');
     }
 
     public function coverPhoto(): ?Photo
     {
-        return $this->photos()->orderBy('id')->first();
+        return $this->photos()->orderByDesc('is_cover')->orderBy('sort_order')->orderBy('id')->first();
     }
 }

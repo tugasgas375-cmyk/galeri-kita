@@ -39,6 +39,15 @@
                 <a href="{{ route('moments.download', $moment) }}" class="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-6 py-2.5 text-sm font-medium text-amber-700 transition hover:bg-amber-100">
                     &#11015; Unduh album (ZIP)
                 </a>
+                <a href="https://wa.me/?text={{ urlencode($moment->title.' — '.route('moments.show', $moment)) }}" target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50 px-6 py-2.5 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100">
+                    <span class="flex h-4 w-4 items-center justify-center text-sm leading-none" aria-hidden="true">&#128172;</span>
+                    Bagikan ke WhatsApp
+                </a>
+                <button type="button" id="copy-link"
+                        class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white px-6 py-2.5 text-sm font-medium text-rose-600 transition hover:bg-rose-50">
+                    &#128279; Salin link
+                </button>
             </div>
         </div>
 
@@ -128,5 +137,29 @@
                 img.src = '';
             }
         });
+
+        const copyBtn = document.getElementById('copy-link');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', async function () {
+                const target = copyBtn.dataset.url || window.location.href;
+                try {
+                    await navigator.clipboard.writeText(target);
+                    copyBtn.textContent = '\u2713 Link disalin';
+                } catch (e) {
+                    const fallback = document.createElement('textarea');
+                    fallback.value = target;
+                    document.body.appendChild(fallback);
+                    fallback.select();
+                    document.execCommand('copy');
+                    fallback.remove();
+                    copyBtn.textContent = '\u2713 Link disalin';
+                }
+                copyBtn.classList.add('bg-rose-600', 'text-white');
+                setTimeout(() => {
+                    copyBtn.innerHTML = '&#128279; Salin link';
+                    copyBtn.classList.remove('bg-rose-600', 'text-white');
+                }, 2000);
+            });
+        }
     </script>
 @endpush

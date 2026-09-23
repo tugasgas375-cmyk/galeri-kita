@@ -24,4 +24,6 @@ Route::prefix('admin')->name('admin.')->middleware('admin.auth')->group(function
     Route::post('/momen/{moment}/foto', [AdminController::class, 'storePhotos'])->name('moments.photos.store');
     Route::patch('/foto/{photo}', [AdminController::class, 'updateCaption'])->name('photos.update');
     Route::delete('/foto/{photo}', [AdminController::class, 'destroyPhoto'])->name('photos.destroy');
+    Route::post('/foto/{photo}/sampul', [AdminController::class, 'setCover'])->name('photos.cover');
+    Route::post('/foto/urut', [AdminController::class, 'reorder'])->name('photos.reorder');
 });

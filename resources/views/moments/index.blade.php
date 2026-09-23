@@ -74,6 +74,28 @@
                 <span class="text-rose-400">&#10084;</span>
                 <span class="h-px w-16 bg-rose-300"></span>
             </div>
+
+            {{-- Pencarian --}}
+            <form method="GET" action="{{ route('home') }}#momen" class="reveal mx-auto mt-8 flex max-w-md items-center gap-2">
+                <div class="relative flex-1">
+                    <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" aria-hidden="true">&#128269;</span>
+                    <input
+                        type="text"
+                        name="q"
+                        value="{{ request('q') }}"
+                        placeholder="Cari kenangan kita..."
+                        class="w-full rounded-full border border-rose-200/80 bg-white/80 py-3 pl-11 pr-4 text-sm text-stone-700 shadow-sm outline-none backdrop-blur transition focus:border-rose-400 focus:ring-4 focus:ring-rose-100"
+                    >
+                </div>
+                <button type="submit" class="shrink-0 rounded-full bg-gradient-to-r from-rose-500 to-rose-600 px-6 py-3 text-sm font-medium text-white shadow-md shadow-rose-200 transition hover:-translate-y-0.5">
+                    Cari
+                </button>
+                @if (request('q'))
+                    <a href="{{ route('home') }}#momen" class="shrink-0 rounded-full border border-stone-200 bg-white px-3.5 py-3 text-sm text-stone-500 transition hover:bg-stone-50" title="Hapus pencarian">
+                        &times;
+                    </a>
+                @endif
+            </form>
         </div>
 
         @forelse ($moments as $moment)
@@ -137,13 +159,19 @@
             </article>
         @empty
             <div class="reveal mx-auto max-w-xl rounded-[2rem] border border-dashed border-rose-200 bg-white/70 p-12 text-center shadow-sm backdrop-blur">
-                <p class="text-6xl">&#128248;</p>
-                <h3 class="mt-5 font-serif text-3xl font-bold text-stone-800">Belum ada momen</h3>
+                <p class="text-6xl">{{ request('q') ? '&#128269;' : '&#128248;' }}</p>
+                <h3 class="mt-5 font-serif text-3xl font-bold text-stone-800">
+                    {{ request('q') ? 'Tidak ditemukan' : 'Belum ada momen' }}
+                </h3>
                 <p class="mx-auto mt-3 max-w-md leading-relaxed text-stone-500">
-                    Momen-momen pertama kalian akan muncul di sini. Biarkan cerita ini mulai ditulis.
+                    @if (request('q'))
+                        Tidak ada momen yang cocok dengan kata kunci "{{ request('q') }}".
+                    @else
+                        Momen-momen pertama kalian akan muncul di sini. Biarkan cerita ini mulai ditulis.
+                    @endif
                 </p>
-                <a href="{{ route('admin.login') }}" class="mt-7 inline-block rounded-full bg-gradient-to-r from-rose-500 to-rose-600 px-8 py-3 text-sm font-medium text-white shadow-lg shadow-rose-200 transition hover:-translate-y-0.5">
-                    Tambah Momen Pertama
+                <a href="{{ request('q') ? route('home').'#momen' : route('admin.login') }}" class="mt-7 inline-block rounded-full bg-gradient-to-r from-rose-500 to-rose-600 px-8 py-3 text-sm font-medium text-white shadow-lg shadow-rose-200 transition hover:-translate-y-0.5">
+                    {{ request('q') ? 'Kembali ke semua momen' : 'Tambah Momen Pertama' }}
                 </a>
             </div>
         @endforelse
