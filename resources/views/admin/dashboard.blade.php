@@ -6,28 +6,85 @@
         <h1 class="mt-1 font-serif text-4xl font-bold text-stone-900">Dashboard</h1>
         <p class="mt-2 max-w-lg text-stone-500">Kelola semua momen-momen kalian di sini, sayang.</p>
 
-        <div class="mt-7 flex flex-wrap gap-4">
+        <div class="mt-7 grid grid-cols-2 gap-4 lg:grid-cols-4">
             <div class="flex items-center gap-3 rounded-2xl bg-white/90 px-5 py-3.5 shadow-sm">
                 <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-100 text-lg text-rose-500">&#128248;</span>
                 <div>
-                    <p class="text-2xl font-bold leading-none text-stone-900">{{ $moments->total() }}</p>
+                    <p class="text-2xl font-bold leading-none text-stone-900">{{ number_format($stats['moments'], 0, ',', '.') }}</p>
                     <p class="mt-1 text-xs text-stone-400">Momen</p>
                 </div>
             </div>
             <div class="flex items-center gap-3 rounded-2xl bg-white/90 px-5 py-3.5 shadow-sm">
                 <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-lg text-amber-500">&#128247;</span>
                 <div>
-                    <p class="text-2xl font-bold leading-none text-stone-900">{{ \App\Models\Photo::count() }}</p>
+                    <p class="text-2xl font-bold leading-none text-stone-900">{{ number_format($stats['photos'], 0, ',', '.') }}</p>
                     <p class="mt-1 text-xs text-stone-400">Foto</p>
                 </div>
             </div>
             <div class="flex items-center gap-3 rounded-2xl bg-white/90 px-5 py-3.5 shadow-sm">
                 <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-lg text-emerald-500">&#128065;</span>
                 <div>
-                    <p class="text-2xl font-bold leading-none text-stone-900">{{ \App\Models\Moment::sum('views') }}</p>
-                    <p class="mt-1 text-xs text-stone-400">Total orang melihat</p>
+                    <p class="text-2xl font-bold leading-none text-stone-900">{{ number_format($stats['views'], 0, ',', '.') }}</p>
+                    <p class="mt-1 text-xs text-stone-400">Total dilihat</p>
                 </div>
             </div>
+            <div class="flex items-center gap-3 rounded-2xl bg-white/90 px-5 py-3.5 shadow-sm">
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-lg text-violet-500">&#128100;</span>
+                <div>
+                    <p class="text-2xl font-bold leading-none text-stone-900">{{ number_format($stats['unique_viewers'], 0, ',', '.') }}</p>
+                    <p class="mt-1 text-xs text-stone-400">Penonton unik</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Widget statistik --}}
+    <div class="mt-6 grid gap-6 lg:grid-cols-2">
+        <div class="rounded-2xl border border-rose-100/70 bg-white p-6 shadow-sm sm:p-7">
+            <div class="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-stone-400">
+                <span class="text-rose-400">&#128202;</span> Kunjungan 6 Bulan Terakhir
+            </div>
+            <div class="mt-5 flex items-end justify-between gap-2 border-b border-rose-100 pb-1">
+                @foreach ($monthlyViews as $month)
+                    <div class="flex flex-1 flex-col items-center gap-1.5">
+                        <span class="text-[11px] font-semibold text-stone-500">{{ $month['count'] }}</span>
+                        <div class="flex h-28 w-full max-w-10 items-end overflow-hidden rounded-t-lg bg-rose-50">
+                            <div class="w-full rounded-t-lg bg-gradient-to-t from-rose-400 to-rose-600" style="height: {{ max(2, round(($month['count'] / $monthlyViewsMax) * 100)) }}%"></div>
+                        </div>
+                        <span class="text-xs font-medium text-stone-400">{{ $month['label'] }}</span>
+                    </div>
+                @endforeach
+            </div>
+            <p class="mt-3 text-xs text-stone-400">
+                {{ number_format($stats['views_7_days'], 0, ',', '.') }} kunjungan 7 hari terakhir &bull;
+                {{ number_format($stats['views_30_days'], 0, ',', '.') }} dalam 30 hari terakhir
+            </p>
+        </div>
+
+        <div class="rounded-2xl border border-rose-100/70 bg-white p-6 shadow-sm sm:p-7">
+            <div class="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-stone-400">
+                <span class="text-rose-400">&#128293;</span> Momen Paling Dilihat
+            </div>
+            @if ($topMoments->isEmpty())
+                <p class="mt-6 text-sm text-stone-400">Belum ada data kunjungan.</p>
+            @else
+                <ol class="mt-4 space-y-2">
+                    @foreach ($topMoments as $item)
+                        <li class="flex items-center gap-3 rounded-xl bg-stone-50 px-4 py-3">
+                            <span class="font-serif text-xl font-bold text-rose-300">{{ $loop->iteration }}</span>
+                            <div class="min-w-0 flex-1">
+                                <a href="{{ route('admin.moments.photos', $item) }}" class="block truncate font-medium text-stone-800 transition hover:text-rose-600">
+                                    {{ $item->title }}
+                                </a>
+                                <p class="text-xs text-stone-400">{{ $item->photos_count }} foto</p>
+                            </div>
+                            <span class="shrink-0 rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-600">
+                                &#128065; {{ number_format($item->views, 0, ',', '.') }}
+                            </span>
+                        </li>
+                    @endforeach
+                </ol>
+            @endif
         </div>
     </div>
 
@@ -102,6 +159,15 @@
                         <h2 class="mt-1 font-serif text-xl font-bold text-stone-900">{{ $moment->title }}</h2>
                         @if ($moment->description)
                             <p class="mt-1 line-clamp-2 text-sm text-stone-500">{{ $moment->description }}</p>
+                        @endif
+                        @if ($moment->tags)
+                            <div class="mt-2 flex flex-wrap items-center gap-1.5">
+                                @foreach ($moment->tags as $tag)
+                                    <a href="{{ route('admin.dashboard', ['q' => $tag]) }}" class="rounded-full bg-rose-50 px-2.5 py-0.5 text-[11px] font-medium text-rose-600 transition hover:bg-rose-100">
+                                        #{{ $tag }}
+                                    </a>
+                                @endforeach
+                            </div>
                         @endif
 
                         <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">

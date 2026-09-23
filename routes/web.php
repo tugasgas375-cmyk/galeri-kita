@@ -6,6 +6,7 @@ use App\Http\Controllers\MomentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [MomentController::class, 'index'])->name('home');
+Route::get('/galeri', [MomentController::class, 'gallery'])->name('gallery');
 Route::get('/momen/{moment}', [MomentController::class, 'show'])->name('moments.show');
 Route::get('/momen/{moment}/unduh', [AdminController::class, 'downloadZIP'])->name('moments.download');
 

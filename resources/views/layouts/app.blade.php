@@ -34,6 +34,7 @@
                 <div class="flex items-center gap-5 text-sm font-medium">
                     <a href="{{ route('home') }}" class="relative text-stone-500 transition hover:text-rose-600 after:absolute after:-bottom-1 after:left-1/2 after:h-0.5 after:w-0 after:-translate-x-1/2 after:rounded-full after:bg-rose-500 after:transition-all hover:after:w-full">Beranda</a>
                     <a href="{{ route('home') }}#momen" class="hidden text-stone-500 transition hover:text-rose-600 after:absolute after:-bottom-1 after:left-1/2 after:h-0.5 after:w-0 after:-translate-x-1/2 after:rounded-full after:bg-rose-500 after:transition-all after:content-[''] hover:after:w-full sm:block">Momen</a>
+                    <a href="{{ route('gallery') }}" class="hidden text-stone-500 transition hover:text-rose-600 after:absolute after:-bottom-1 after:left-1/2 after:h-0.5 after:w-0 after:-translate-x-1/2 after:rounded-full after:bg-rose-500 after:transition-all after:content-[''] hover:after:w-full sm:block">Galeri</a>
                     <a href="{{ route('admin.login') }}" class="rounded-full border border-rose-200 bg-white/60 px-5 py-2 text-rose-600 transition hover:border-rose-400 hover:bg-rose-50">
                         Admin
                     </a>

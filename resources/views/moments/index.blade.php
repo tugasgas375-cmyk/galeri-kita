@@ -96,6 +96,22 @@
                     </a>
                 @endif
             </form>
+
+            {{-- Filter tag --}}
+            @if (count($tags))
+                <div class="reveal mx-auto mt-6 flex max-w-3xl flex-wrap items-center justify-center gap-2">
+                    <a href="{{ route('home').'#momen' }}"
+                       class="rounded-full px-4 py-2 text-sm transition {{ request('tag') ? 'border border-stone-200 bg-white text-stone-500 hover:bg-stone-50' : 'bg-gradient-to-r from-rose-500 to-rose-600 font-medium text-white shadow-md shadow-rose-200' }}">
+                        Semua
+                    </a>
+                    @foreach ($tags as $tag)
+                        <a href="{{ route('home', ['tag' => $tag]).'#momen' }}"
+                           class="rounded-full border px-4 py-2 text-sm transition {{ request('tag') === $tag ? 'bg-gradient-to-r from-rose-500 to-rose-600 font-medium text-white shadow-md shadow-rose-200' : 'border-rose-200 bg-white/80 text-rose-600 hover:bg-rose-50' }}">
+                            #{{ $tag }}
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </div>
 
         @forelse ($moments as $moment)
@@ -149,6 +165,17 @@
                                 <p class="mt-4 max-w-xl leading-relaxed text-stone-500">{{ Str::limit($moment->description, 240) }}</p>
                             @endif
 
+                            @if ($moment->tags)
+                                <div class="mt-4 flex flex-wrap items-center gap-2">
+                                    @foreach ($moment->tags as $tag)
+                                        <a href="{{ route('home', ['tag' => $tag]).'#momen' }}"
+                                           class="rounded-full border border-rose-200 bg-white px-3.5 py-1 text-xs font-medium text-rose-600 transition hover:bg-rose-600 hover:text-white">
+                                            #{{ $tag }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            @endif
+
                             <a href="{{ route('moments.show', $moment) }}" class="mt-7 inline-flex w-fit items-center gap-2 rounded-full border border-rose-200 px-6 py-2.5 text-sm font-medium text-rose-600 transition hover:bg-rose-600 hover:text-white">
                                 Kenang momen ini
                                 <span class="transition-transform group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
@@ -159,19 +186,21 @@
             </article>
         @empty
             <div class="reveal mx-auto max-w-xl rounded-[2rem] border border-dashed border-rose-200 bg-white/70 p-12 text-center shadow-sm backdrop-blur">
-                <p class="text-6xl">{{ request('q') ? '&#128269;' : '&#128248;' }}</p>
+                <p class="text-6xl">{{ request('q') || request('tag') ? '&#128269;' : '&#128248;' }}</p>
                 <h3 class="mt-5 font-serif text-3xl font-bold text-stone-800">
-                    {{ request('q') ? 'Tidak ditemukan' : 'Belum ada momen' }}
+                    {{ request('q') || request('tag') ? 'Tidak ditemukan' : 'Belum ada momen' }}
                 </h3>
                 <p class="mx-auto mt-3 max-w-md leading-relaxed text-stone-500">
-                    @if (request('q'))
+                    @if (request('tag'))
+                        Tidak ada momen dengan tag #{{ request('tag') }}.
+                    @elseif (request('q'))
                         Tidak ada momen yang cocok dengan kata kunci "{{ request('q') }}".
                     @else
                         Momen-momen pertama kalian akan muncul di sini. Biarkan cerita ini mulai ditulis.
                     @endif
                 </p>
-                <a href="{{ request('q') ? route('home').'#momen' : route('admin.login') }}" class="mt-7 inline-block rounded-full bg-gradient-to-r from-rose-500 to-rose-600 px-8 py-3 text-sm font-medium text-white shadow-lg shadow-rose-200 transition hover:-translate-y-0.5">
-                    {{ request('q') ? 'Kembali ke semua momen' : 'Tambah Momen Pertama' }}
+                <a href="{{ request('q') || request('tag') ? route('home').'#momen' : route('admin.login') }}" class="mt-7 inline-block rounded-full bg-gradient-to-r from-rose-500 to-rose-600 px-8 py-3 text-sm font-medium text-white shadow-lg shadow-rose-200 transition hover:-translate-y-0.5">
+                    {{ request('q') || request('tag') ? 'Kembali ke semua momen' : 'Tambah Momen Pertama' }}
                 </a>
             </div>
         @endforelse

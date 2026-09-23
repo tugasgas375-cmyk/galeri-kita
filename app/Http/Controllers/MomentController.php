@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Moment;
 use App\Models\MomentView;
+use App\Models\Photo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
@@ -19,11 +20,34 @@ class MomentController extends Controller
                         ->orWhere('description', 'like', '%'.$request->string('q').'%');
                 });
             })
+            ->filterTag($request->string('tag'))
             ->orderByDesc('moment_date')
             ->paginate(config('gallery.home_per_page'))
             ->withQueryString();
 
-        return view('moments.index', compact('moments'));
+        $tags = Moment::allTags();
+
+        return view('moments.index', compact('moments', 'tags'));
+    }
+
+    public function gallery(Request $request)
+    {
+        $photos = Photo::with('moment')
+            ->whereHas('moment')
+            ->when($request->filled('momen'), function ($query) use ($request) {
+                $query->where('moment_id', $request->integer('momen'));
+            })
+            ->when($request->filled('tag'), function ($query) use ($request) {
+                $query->whereHas('moment', fn ($q) => $q->filterTag($request->string('tag')));
+            })
+            ->orderByDesc('id')
+            ->paginate(48)
+            ->withQueryString();
+
+        $moments = Moment::orderByDesc('moment_date')->get();
+        $tags = Moment::allTags();
+
+        return view('moments.gallery', compact('photos', 'moments', 'tags'));
     }
 
     public function show(Request $request, Moment $moment)
@@ -45,6 +69,7 @@ class MomentController extends Controller
             MomentView::create([
                 'moment_id' => $moment->id,
                 'device_id' => $deviceId,
+                'created_at' => now(),
             ]);
             $moment->increment('views');
         }

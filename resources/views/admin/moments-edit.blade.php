@@ -56,6 +56,20 @@
                     >{{ old('description', $moment->description) }}</textarea>
                     @error('description') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                 </div>
+
+                <div>
+                    <label for="tags_string" class="mb-1.5 block text-sm font-medium text-stone-700">Tag / Kategori</label>
+                    <input
+                        type="text"
+                        id="tags_string"
+                        name="tags_string"
+                        value="{{ old('tags_string', $moment->tags ? implode(', ', $moment->tags) : '') }}"
+                        placeholder="Mis: date, travel, anniversary"
+                        class="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+                    >
+                    <p class="mt-1.5 text-xs text-stone-400">Pisahkan dengan koma, maksimal 10 tag. Tag dipakai untuk filter di galeri.</p>
+                    @error('tags_string') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                </div>
             </div>
         </div>
 

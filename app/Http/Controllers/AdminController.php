@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Moment;
+use App\Models\MomentView;
 use App\Models\Photo;
 use App\Services\ImageOptimizer;
 use Illuminate\Http\Request;
@@ -24,7 +25,35 @@ class AdminController extends Controller
             ->orderByDesc('moment_date')
             ->paginate(12);
 
-        return view('admin.dashboard', compact('moments'));
+        $stats = [
+            'moments' => (int) Moment::count(),
+            'photos' => (int) Photo::count(),
+            'views' => (int) Moment::sum('views'),
+            'unique_viewers' => (int) MomentView::count(),
+            'views_30_days' => (int) MomentView::where('created_at', '>=', now()->subDays(30)->startOfDay())->count(),
+            'views_7_days' => (int) MomentView::where('created_at', '>=', now()->subDays(7)->startOfDay())->count(),
+        ];
+
+        $topMoments = Moment::withCount('photos')
+            ->orderByDesc('views')
+            ->limit(5)
+            ->get();
+
+        $monthlyViews = collect(range(5, 0))
+            ->map(fn ($i) => now()->subMonths($i))
+            ->map(function ($month) {
+                $count = MomentView::where('created_at', '>=', $month->copy()->startOfMonth())
+                    ->where('created_at', '<=', $month->copy()->endOfMonth())
+                    ->count();
+
+                return [
+                    'label' => $month->translatedFormat('M'),
+                    'count' => $count,
+                ];
+            });
+        $monthlyViewsMax = max(1, $monthlyViews->max('count'));
+
+        return view('admin.dashboard', compact('moments', 'stats', 'topMoments', 'monthlyViews', 'monthlyViewsMax'));
     }
 
     public function create()
@@ -39,6 +68,7 @@ class AdminController extends Controller
         $moment = Moment::create([
             'title' => $data['title'],
             'description' => $data['description'] ?? null,
+            'tags' => $this->parseTags($data['tags_string'] ?? null),
             'moment_date' => $data['moment_date'],
         ]);
 
@@ -60,6 +90,7 @@ class AdminController extends Controller
         $moment->update([
             'title' => $data['title'],
             'description' => $data['description'] ?? null,
+            'tags' => $this->parseTags($data['tags_string'] ?? null),
             'moment_date' => $data['moment_date'],
         ]);
 
@@ -174,6 +205,7 @@ class AdminController extends Controller
         $rules = [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
+            'tags_string' => ['nullable', 'string', 'max:500'],
             'moment_date' => ['required', 'date'],
         ];
 
@@ -185,6 +217,21 @@ class AdminController extends Controller
         }
 
         return $request->validate($rules);
+    }
+
+    protected function parseTags(?string $value): array
+    {
+        if (! $value) {
+            return [];
+        }
+
+        return collect(explode(',', $value))
+            ->map(fn ($tag) => mb_strtolower(trim($tag)))
+            ->filter()
+            ->unique()
+            ->take(10)
+            ->values()
+            ->all();
     }
 
     protected function savePhotos(Moment $moment, array $photos, array $captions)

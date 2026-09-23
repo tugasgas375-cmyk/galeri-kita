@@ -36,6 +36,10 @@
             @endif
 
             <div class="mt-8 flex flex-wrap items-center gap-3">
+                <button type="button" id="start-slideshow"
+                        class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-500 to-rose-600 px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-rose-200 transition hover:-translate-y-0.5 hover:shadow-xl">
+                    &#9654; Putar Slideshow
+                </button>
                 <a href="{{ route('moments.download', $moment) }}" class="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-6 py-2.5 text-sm font-medium text-amber-700 transition hover:bg-amber-100">
                     &#11015; Unduh album (ZIP)
                 </a>
@@ -49,6 +53,17 @@
                     &#128279; Salin link
                 </button>
             </div>
+
+            @if ($moment->tags)
+                <div class="mt-6 flex flex-wrap items-center gap-2">
+                    @foreach ($moment->tags as $tag)
+                        <a href="{{ route('home', ['tag' => $tag]).'#momen' }}"
+                           class="rounded-full border border-rose-200 bg-white/80 px-4 py-1.5 text-xs font-medium text-rose-600 backdrop-blur transition hover:bg-rose-600 hover:text-white">
+                            #{{ $tag }}
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </div>
 
         {{-- Gallery --}}
@@ -75,68 +90,17 @@
 @endsection
 
 @push('scripts')
+    @include('partials.lightbox')
+
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const links = Array.from(document.querySelectorAll('.glightbox'));
-            if (!links.length) return;
-
-            let current = 0;
-
-            const overlay = document.createElement('div');
-            overlay.className = 'fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-4 opacity-0 pointer-events-none transition-opacity duration-300';
-            overlay.innerHTML = `
-                <button type="button" class="close absolute right-5 top-5 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-xl text-white transition hover:bg-white/25" aria-label="Tutup">&times;</button>
-                <button type="button" class="prev absolute left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-2xl text-white transition hover:bg-white/25 sm:left-8" aria-label="Sebelumnya">&lsaquo;</button>
-                <button type="button" class="next absolute right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-2xl text-white transition hover:bg-white/25 sm:right-8" aria-label="Berikutnya">&rsaquo;</button>
-                <img class="max-h-[78vh] max-w-[92vw] rounded-xl shadow-2xl" alt="">
-                <p class="caption mt-5 min-h-6 max-w-lg text-center font-serif text-lg italic text-rose-100"></p>
-                <p class="counter mt-2 text-xs tracking-widest text-white/50"></p>
-            `;
-            document.body.appendChild(overlay);
-
-            const img = overlay.querySelector('img');
-            const caption = overlay.querySelector('.caption');
-            const counter = overlay.querySelector('.counter');
-            const closeBtn = overlay.querySelector('.close');
-            const prevBtn = overlay.querySelector('.prev');
-            const nextBtn = overlay.querySelector('.next');
-
-            function show(index) {
-                current = (index + links.length) % links.length;
-                const link = links[current];
-                img.src = link.getAttribute('href');
-                caption.textContent = link.dataset.caption || '';
-                counter.textContent = (current + 1) + ' / ' + links.length;
-                overlay.classList.remove('opacity-0', 'pointer-events-none');
-            }
-
-            links.forEach((link, i) => {
-                link.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    show(i);
-                });
+        const slideshowBtn = document.getElementById('start-slideshow');
+        if (slideshowBtn) {
+            slideshowBtn.addEventListener('click', function () {
+                if (typeof window.openLightbox === 'function') {
+                    window.openLightbox(0, true);
+                }
             });
-
-            closeBtn.addEventListener('click', close);
-            prevBtn.addEventListener('click', function (e) { e.stopPropagation(); show(current - 1); });
-            nextBtn.addEventListener('click', function (e) { e.stopPropagation(); show(current + 1); });
-
-            overlay.addEventListener('click', function (e) {
-                if (e.target === overlay) close();
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (overlay.classList.contains('pointer-events-none')) return;
-                if (e.key === 'Escape') close();
-                if (e.key === 'ArrowLeft') show(current - 1);
-                if (e.key === 'ArrowRight') show(current + 1);
-            });
-
-            function close() {
-                overlay.classList.add('opacity-0', 'pointer-events-none');
-                img.src = '';
-            }
-        });
+        }
 
         const copyBtn = document.getElementById('copy-link');
         if (copyBtn) {

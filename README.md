@@ -6,9 +6,13 @@ Website galeri momen bersama pasangan, dibangun dengan **Laravel 12** + **Tailwi
 - Halaman publik galeri (hero + penghitung "hari bersama" + kartu momen + lightbox foto)
 - Panel admin login (`/admin/login`) untuk unggah foto & tulis cerita
 - Upload banyak foto sekaligus, edit judul/tanggal/deskripsi (CRUD lengkap)
+- Tag / kategori per momen + filter tag di halaman utama & galeri
+- Halaman galeri penuh (`/galeri`): grid semua foto, filter per momen/tag
+- Slideshow otomatis (autoplay) di lightbox per foto, dengan progress bar & kontrol keyboard
 - Kelola foto per momen: tambah foto lagi, edit caption per foto, hapus foto per-satu
 - Unduh album sebagai ZIP per momen
 - Penghitung "berapa kali dilihat" per momen
+- Statistik admin: total penonton unik, kunjungan 7/30 hari, grafik 6 bulan, momen terpopuler
 - Pencarian momen di dashboard admin + paginasi halaman utama
 - Foto tersimpan di `storage/app/public` dan dilayani via symlink `public/storage`
 
