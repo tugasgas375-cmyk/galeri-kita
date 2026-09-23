@@ -55,4 +55,4 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 EXPOSE 80
 
-CMD ["sh", "-c", "php artisan migrate --force && php artisan storage:link --force && apache2-foreground"]
+CMD ["sh", "-c", "ls -la /etc/apache2/mods-enabled/; grep -r 'mpm' /etc/apache2/mods-enabled/ 2>/dev/null; php artisan migrate --force && php artisan storage:link --force && apache2-foreground"]
